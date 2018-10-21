@@ -56,3 +56,59 @@ class FeedForwardNN:
         # now calculate a_k using activation function one sided sigmoid, you can change function here
         self.a_k = 1/(1+exp(-self.net_k))
         print("a_k", self.a_k)
+
+    def backprop(self, target):
+        print("===== back-propagation =====")
+
+        # calculate e_k's
+        self.e_k = self.errorcalc(target)
+        print("ek's", self.e_k)
+
+        # calculate gradient descent loss function
+        self.E = (1/2)*sum(self.e_k**2)
+        print("loss function matix", self.E)
+
+        # calculate delta_wkj and delta_wbkj now
+
+        # first calculate delta_k = e_k*a_k*(1-a_k), all operations are elementwise
+        self.delta_k = self.e_k * self.a_k * (1 - self.a_k)
+        print("delta_k", self.delta_k)
+
+        # now calculate delta_wkj = epsilon * delta_k * transpose(a_j)
+        self.delta_W_kj = self.epsilon * (self.delta_k @ self.a_j.transpose())
+        print("delta_W_kj", self.delta_W_kj)
+        self.delta_Wb_kj = self.epsilon * (self.B_kj @ self.delta_k)
+        print("delta_Wb_kj", self.delta_Wb_kj)
+
+        # calculate delta_wji and delta_wbji now
+
+        # first calculate temporary intermediate T matrix = transpose(w_kj)*delta_k
+        self.T_mat = self.W_kj.transpose() @ self.delta_k
+        print("T matrix, temporary intermediate", self.T_mat)
+
+        # now calculate delta_j = T_mat*a_j*(1-a_j)
+        self.delta_j = self.T_mat * self.a_j * (1 - self.a_j)
+        print("delta_j", self.delta_j)
+
+        # now calculate delta_wji = epsilon * delta_j * transpose(a_i)
+        self.delta_W_ji = self.epsilon * (self.delta_j @ self.a_i.transpose())
+        print("delta_W_ji", self.delta_W_ji)
+        self.delta_Wb_ji = self.epsilon * (self.B_ji @ self.delta_j)
+        print("delta_Wb_ji", self.delta_Wb_ji)
+
+    def errorcalc(self, target):
+        t = array(target).reshape(shape(self.a_k))
+        return t - self.a_k
+
+    def train(self, training_data, target_vector):
+        print("===== training =====")
+        self.feedforward(training_data)
+        self.backprop(target_vector)
+
+    def test(self, testing_data):
+        print("testing")
+
+
+testObj = FeedForwardNN(2,3,2,1)
+
+testObj.train([1,2],[2,3])
