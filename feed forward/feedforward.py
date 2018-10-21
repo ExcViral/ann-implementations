@@ -30,3 +30,29 @@ class FeedForwardNN:
 
         print("Bias Weight ji", self.Wb_ji)
         print("Bias Weight kj", self.Wb_kj)
+
+
+    def feedforward(self, input):
+        print("===== feeding-forward =====")
+        # store input into array named a_i
+        if(len(input) != self.I):
+            raise Exception("input size exceed the predefined input size")
+
+        self.a_i = array(input).reshape(len(input),1)
+        print("input", self.a_i)
+
+        # first calculate net_j
+        self.net_j = (self.W_ji @ self.a_i) + (self.B_ji @ self.Wb_ji)
+        print("net_j", self.net_j)
+
+        # now calculate a_j using activation function one sided sigmoid, you can change function here
+        self.a_j = 1/(1+exp(-self.net_j))
+        print("a_j", self.a_j)
+
+        # first calculate net_k
+        self.net_k = (self.W_kj @ self.a_j) + (self.B_kj @ self.Wb_kj)
+        print("net_k", self.net_k)
+
+        # now calculate a_k using activation function one sided sigmoid, you can change function here
+        self.a_k = 1/(1+exp(-self.net_k))
+        print("a_k", self.a_k)
