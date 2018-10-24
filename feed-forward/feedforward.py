@@ -70,7 +70,7 @@ class FeedForwardNN:
 
     def backprop(self, target):
         """
-        Implementation of the backpropagation algorithm for feed forward neural network
+        Implementation of the backpropagation algorithm for feed-forward neural network
         :param target: list containing expected outputs from the neural network
         :return:
         """
@@ -136,7 +136,7 @@ class FeedForwardNN:
 
     def train(self, training_vector, target_vector):
         """
-        Function to feed forward the neural network, calculate offset of weights by backpropagating and update weights
+        Function to feed-forward the neural network, calculate offset of weights by backpropagating and update weights
         accordingly
 
         :param training_vector: list containing input to the neural network
