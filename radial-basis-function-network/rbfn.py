@@ -22,6 +22,8 @@ class Rbfnn:
         self.C_ji = random.uniform(low=-0.5, high=0.5, size=(self.J, self.I))
         # self.C_ji = array([[0,2],[0,1],[0,0]] )
 
+        self.loss = []
+
     def train(self, training_vector, target_vector):
         print("sfsdfdsf")
 
@@ -45,10 +47,10 @@ class Rbfnn:
         X = self.expandInput(input_vector, self.J)
         # print(X)
 
-        D = (X - self.C_ji)
+        self.D = (X - self.C_ji)
         # print(D)
 
-        K = (D*D).sum(axis=1).reshape(len(D),1)
+        K = (self.D*self.D).sum(axis=1).reshape(len(self.D),1)
         # print(K)
 
         self.Phi = exp(-K/(2*self.var))
@@ -57,13 +59,60 @@ class Rbfnn:
         self.Y = self.W_kj @ self.Phi
         print("forward pass output",self.Y)
 
+    def backprop(self, target):
+
+        target = array(target).reshape(self.K,1)
+
+        self.e_k = target - self.Y
+        print("error vec", self.e_k)
+
+        self.E = sum(self.e_k * self.e_k)
+        print("mean sq error", self.E)
+
+        self.storeloss(self.E)
+
+        # calculating change in weight
+
+        self.delta_W_kj = self.e_k @ self.Phi.transpose()
+        print("delta W", self.delta_W_kj)
+
+        # calculating change in center matrix
+
+        # calculating temporary marix T and constant c = eta2/var
+        T = self.W_kj.transpose() @ self.e_k
+        c = self.eta2/self.var
+
+        self.delta_C_ji = (c * (T * self.Phi))*self.D
+        print("change in center",self.delta_C_ji)
 
 
     def expandInput(self, input_vector, j):
         return array([input_vector,]*j)
 
+    def storeloss(self, e):
+        """
+        Function to track mean squared errors occurring during training of the neural network
 
-a = Rbfnn(2,3,1,1,1,1)
+        :param e: mean squared error
+        :return: none
+        """
+        self.loss.append(e)
+
+    def plot_convergence_characteristics(self):
+        '''
+        Function to plot the convergence characteristics viz. plot of error v/s pattern number
+        Convergence characteristics shows the rate of convergence of the error of output of NN v/s actual value, to 0.
+        :param errors: list containing mean square error corresponding to each pattern
+        :return: none
+        '''
+        plt.plot(self.loss)
+        plt.xlabel('Pattern number')
+        plt.ylabel('MSE')
+        plt.show()
+
+
+
+a = Rbfnn(2,3,2,1,1,1)
 
 a.forwardpass([1,2])
-# a.forwardpass([[1],[2]])
+a.backprop([1.5, 2.5])
