@@ -18,6 +18,12 @@ class Rbfnn:
         # initializing the weight matrix
         self.W_kj = random.uniform(low=-0.5, high=0.5, size=(self.K, self.J))
 
+        # initializing bias matrix
+        self.B = identity(self.K)
+
+        # initializing bias weights
+        self.B_W_kj = (random.uniform(low=0, high=1, size=(self.K, 1)))
+
         # initialize center matrix for the hidden layer
         self.C_ji = random.uniform(low=-0.5, high=0.5, size=(self.J, self.I))
         # self.C_ji = array([[0,2],[0,1],[0,0]] )
@@ -25,7 +31,9 @@ class Rbfnn:
         self.loss = []
 
     def train(self, training_vector, target_vector):
-        print("sfsdfdsf")
+        self.forwardpass(training_vector)
+        self.backprop(target_vector)
+        self.update()
 
     def forwardpass(self, input_vector):
 
@@ -56,7 +64,7 @@ class Rbfnn:
         self.Phi = exp(-K/(2*self.var))
         # print(self.Phi)
 
-        self.Y = self.W_kj @ self.Phi
+        self.Y = (self.W_kj @ self.Phi) + (self.B @ self.B_W_kj)
         print("forward pass output",self.Y)
 
     def backprop(self, target):
@@ -76,6 +84,8 @@ class Rbfnn:
         self.delta_W_kj = self.e_k @ self.Phi.transpose()
         print("delta W", self.delta_W_kj)
 
+        self.delta_B_W_kj = self.eta1 * (self.B @ self.e_k)
+
         # calculating change in center matrix
 
         # calculating temporary marix T and constant c = eta2/var
@@ -88,6 +98,11 @@ class Rbfnn:
 
     def expandInput(self, input_vector, j):
         return array([input_vector,]*j)
+
+    def update(self):
+        self.W_kj = self.W_kj + self.delta_W_kj
+        self.C_ji = self.C_ji + self.delta_C_ji
+        self.B_W_kj = self.B_W_kj + self.delta_B_W_kj
 
     def storeloss(self, e):
         """
